@@ -16,14 +16,13 @@ cask "git-cowork" do
   depends_on macos: :sonoma
 
   app "git-cowork.app"
-  binary "#{appdir}/git-cowork.app/Contents/Helpers/git-cowork"
-
   # Homebrew flags every cask download for Gatekeeper, and this free, open
   # source app has no paid Apple signature. Clear the flag so it opens normally.
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/git-cowork.app"]
-  end
+  installer script: {
+    executable: "/usr/bin/xattr",
+    args:       ["-dr", "com.apple.quarantine", "#{staged_path}/git-cowork.app"],
+  }
+  binary "#{appdir}/git-cowork.app/Contents/Helpers/git-cowork"
 
   zap trash: "~/Library/Preferences/ai.smao.git-cowork.plist"
 end
