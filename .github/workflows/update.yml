@@ -1,0 +1,40 @@
+name: Update cask
+
+# Checks for a new git-cowork release and updates the version and checksum.
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Update Casks/git-cowork.rb
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="$(gh release view --repo michael-smao/git-cowork --json tagName --jq .tagName)"
+          VERSION="${TAG#v}"
+          CURRENT="$(sed -n 's/^  version "\(.*\)"/\1/p' Casks/git-cowork.rb)"
+          if [ "$VERSION" = "$CURRENT" ]; then
+            echo "Already on $VERSION."
+            exit 0
+          fi
+
+          BASE="https://github.com/michael-smao/git-cowork/releases/download/$TAG"
+          SHA="$(curl -fsSL "$BASE/git-cowork-$VERSION-macos-arm64.zip.sha256" | awk '{print $1}')"
+          echo "$SHA" | grep -Eq '^[0-9a-f]{64}$' || { echo "No valid checksum for $VERSION"; exit 1; }
+
+          sed -i -e "s/^  version \".*\"/  version \"$VERSION\"/" \
+                 -e "s/^  sha256 \".*\"/  sha256 \"$SHA\"/" Casks/git-cowork.rb
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "git-cowork $VERSION"
+          git push
