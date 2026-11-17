@@ -1,6 +1,6 @@
 cask "git-cowork" do
-  version "0.7.1"
-  sha256 "d3cb454c8e6dc47b5ab8319024020eb689b89854efd2d3f1bf944b639d71d1b1"
+  version "0.8.0"
+  sha256 "f6d91469ebb668496f0bff4b055262373c4456fb0bf79ec43931ba7a5e37b9c1"
 
   url "https://github.com/michael-smao/git-cowork/releases/download/v#{version}/git-cowork-#{version}-macos-arm64.zip"
   name "git-cowork"
